@@ -51,20 +51,8 @@ names(catch) = tolower(names(catch))
 catch$trawl_id = as.numeric(catch$trawl_id)
 
 catch$common_name = NA
-#catch$common_name[which(catch$scientific_name=="Ophiodon elongatus")] = "lingcod"
-#catch$common_name[which(catch$scientific_name=="Microstomus pacificus")] = "Dover sole"
-#catch$common_name[which(catch$scientific_name=="Sebastolobus alascanus")] = "shortspine thornyhead"
-#catch$common_name[which(catch$scientific_name=="Atheresthes stomias")] = "arrowtooth flounder"
-#catch$common_name[which(catch$scientific_name=="Hippoglossus stenolepis")] = "Pacific halibut" # few obs, model fit issues
-#catch$common_name[which(catch$scientific_name=="Glyptocephalus zachirus")] = "rex sole"
-#catch$common_name[which(catch$scientific_name=="Parophrys vetulus")] = "English sole"
-catch$common_name[which(catch$scientific_name=="Anoplopoma fimbria")] = "sablefish"
-#catch$common_name[which(catch$scientific_name=="Sebastes alutus")] = "Pacific ocean perch"
-#catch$common_name[which(catch$scientific_name=="Gadus macrocephalus")] = "Pacific cod" # few obs
-#catch$common_name[which(catch$scientific_name=="Raja rhina")] = "longnose skate"
-#catch$common_name[which(catch$scientific_name=="Raja binoculata")] = "big skate"
-#catch$common_name[which(catch$scientific_name=="Squalus suckleyi")] = "spiny dogfish"
-catch = dplyr::filter(catch, !is.na(common_name))
+catch = dplyr::filter(catch, 
+        common_name == "sablefish", !is.na(common_name))
 
 # Loop over species
 species = unique(catch$common_name)
