@@ -21,16 +21,22 @@ s <- sdmTMB_sim(
   x = x, y = y, mesh = mesh, X = X,
   betas = c(0.2, 0.3), time_steps = time_steps,
   phi = 0.2, thetaf = 1.3, range = 0.2, sigma_O = 0.4,
-  seed = 1234, family = tweedie(link = "log")
+  seed = 1234,
+  # family = tweedie(link = "log")
+  family = gaussian()
 )
 
 ## Trial:
-# mesh <- make_mesh(s, xy_cols = c("x", "y"), cutoff = 0.3)
-# plot(mesh)
-# mesh$mesh$n
-# m <- sdmTMB(
-#   data = s, formula = observed ~ 1 + x1, silent = FALSE,
-#   spde = mesh, family = tweedie())
+mesh <- make_mesh(s, xy_cols = c("x", "y"), cutoff = 0.1)
+plot(mesh)
+mesh$mesh$n
+m <- sdmTMB(
+  data = s, formula = observed ~ 1 + x1, silent = FALSE,
+  spde = mesh,
+  # family = tweedie()
+  family = gaussian()
+)
+m
 
 cutoffs <- c(0.4, 0.3, 0.2, 0.1, 0.05, 0.02)
 mcv <- lapply(cutoffs, function(k) {
@@ -46,7 +52,8 @@ mcv <- lapply(cutoffs, function(k) {
     silent = TRUE,
     parallel = TRUE,
     priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 0.1, sigma_lt = 2)),
-    family = tweedie(link = "log"),
+    # family = tweedie(link = "log"),
+    family = gaussian(),
     k_folds = 8L
   )
 })
