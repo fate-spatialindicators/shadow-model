@@ -265,5 +265,5 @@ m_fine <- sdmTMB(
 )
 pred_fine <- predict(m_fine, newdata = dat_check)
 
-sum(sdmTMB:::ll_gaussian(m_coarse, withheld_y = pred_coarse$density, withheld_mu = exp(pred_coarse$est)))
-sum(sdmTMB:::ll_gaussian(m_fine, withheld_y = pred_fine$density, withheld_mu = exp(pred_fine$est)))
+sum(sdmTMB:::ll_gaussian(m_coarse, withheld_y = pred_coarse$density, withheld_mu = I(pred_coarse$est)))
+sum(sdmTMB:::ll_gaussian(m_fine, withheld_y = pred_fine$density, withheld_mu = I(pred_fine$est)))
