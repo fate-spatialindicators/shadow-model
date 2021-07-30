@@ -81,7 +81,7 @@ spde = make_mesh(
   haul_new,
   xy_cols = c("X","Y"),
   type = "kmeans",
-  cutoff = df$knots[i],
+  n_knots = df$knots[i],
   #cutoff=70,
   seed = 2021
 )
@@ -164,27 +164,6 @@ model_4 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_d
 
 df$model_4[i] = model_4$sum_loglik
 
-saveRDS(df,"ll_all_models_table.rds")
+saveRDS(df,"results/ll_all_models_table.rds")
 }
 
-
-
-library(tidyr)
-ll_long <- pivot_longer(ll_all_models, cols = 3:6)
-ll_long = dplyr::left_join(ll_long, data.frame(name = paste0("model_",1:4), 
-                                               model= c("Spatial only", "IID", "RW", "AR1")))
-
-library(ggplot2)
-p1 = ggplot(ll_long, aes(cutoff, value, group=model,col=model)) +
-  geom_line() + 
-  geom_point() + 
-  ggtitle("WC sablefish (year + depth quadratic)") + 
-  theme_bw() + xlab("Cutoff") + ylab("LL")
-
-p2 = ggplot(ll_long, aes(knots, value, group=model,col=model)) +
-  geom_line() + 
-  geom_point() + 
-  ggtitle("WC sablefish (year + depth quadratic)") + 
-  theme_bw() + xlab("Knots") + ylab("LL")
-
-gridExtra::grid.arrange(p1,p2,nrow=2)
