@@ -24,12 +24,13 @@ newproj = paste("+proj=utm +zone=10 ellps=WGS84")
 unit_scale <- 1000
 haul_trans <- spTransform(haul_trans, CRS(newproj))
 haul_trans = as.data.frame(haul_trans)
-haul_trans$longitude_dd = haul_trans$longitude_dd/unit_scale
-haul_trans$latitude_dd = haul_trans$latitude_dd/unit_scale
+#haul_trans$longitude_dd = haul_trans$longitude_dd/unit_scale
+#haul_trans$latitude_dd = haul_trans$latitude_dd/unit_scale
 haul_trans$year = as.numeric(substr(haul_trans$date_yyyymmdd,1,4))
-haul$X = haul_trans$longitude_dd
-haul$Y = haul_trans$latitude_dd
+haul$X = haul_trans$X / unit_scale
+haul$Y = haul_trans$Y / unit_scale
 haul$year = haul_trans$year
+
 #haul$year_centered = haul$year - mean(unique(haul$year))
 
 # center and scale depth, removing NAs
