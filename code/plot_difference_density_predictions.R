@@ -7,7 +7,6 @@ options("rgdal_show_exportToProj4_warnings"="none")
 library(rgdal)
 library(dplyr)
 library(scales)
-library(ggnewscale) # required to plot bathymetry and predicted density in same panel with diff scales
 
 # get coastlines and transform to projection and scale of data
 shore_gcs <- rnaturalearth::ne_countries(continent = "north america", scale = "medium", returnclass = "sp")
@@ -59,83 +58,25 @@ names(r_diff2) = "diff_depth" # rename column
 # stack differenced density with other layers
 r_all = stack(r_diff, r_diff2, r_1)
 
-# other plotting options include levelplot or can use the following....
 r_diff_df = as.data.frame(rasterToPoints(r_all))
 
   ggplot() +
     geom_raster(data = r_diff_df, aes(x, y, fill = diff_est)) +
-    scale_fill_gradient2("Log-Ratio of Density", low = "blue", high = "red") +
-    annotation_map(shore, color = "black", fill = "white", size = 0.1) +
-    #ggthemes::theme_map() +
-    geom_path(data = contour200_df, aes(x = long, y = lat, group = group), color = "darkcyan", size = 0.5) +
-    coord_cartesian(xlim = c(285, 1005), ylim= c(3550, 5290)) +
-    xlab("Eastings (km)") +
-    ylab("Northings (km)") +
-    ggtitle("Log-Ratio of Density Estimates Between 1x and 4x Resolution for 2018")
-
-# Largest differences are just in 2 small locations where there are deep canyons, which explains why the diffs are so great there due to depth averaging
-# Lets visualize this by plotting bathymetry next to the raster of differences in density
-
-  ## load custom bathymetry raster
-  raster_hiRes <- raster("data/bathy_clipped")
-  # Coarse-grain to speed plotting
-  raster_lowRes = aggregate(raster_hiRes, fact = 15, fun = mean)
-  raster_lowRes = raster_lowRes / 10 # units were originally decimeters, so convert to meters
-  # set cells outside survey bounds to NA
-  raster_lowRes = reclassify(raster_lowRes, c(-Inf, -1280, NA))
-  raster_lowRes = reclassify(raster_lowRes, c(-50, Inf, NA), right = FALSE)
-  # load Cowcod Conservation Areas, not included in trawl survey
-  CCA = rgdal::readOGR('data/cowcod_conservation_area_shapefile/kv299cy7357.shp')
-  identical(crs(CCA),crs(raster_lowRes)) # check that have same CRS
-  # mask CCA from bathymetry raster
-  raster_masked = raster::mask(raster_lowRes, CCA, inverse = TRUE)
-  # reproject to match density predictions
-  bathy = projectRaster(raster_masked, crs = "+proj=utm +zone=10 ellps=WGS84")
-  bathy_df = as.data.frame(rasterToPoints(bathy))
-  # truncate southern california for ease of viewing side-by side with predictions
-  bathy_df = filter(bathy_df, y > 3825000)
-  r_diff_df = filter(r_diff_df, y > 3825)
-  # rescale and maybe shift for plotting alongside densities?
-  bathy_df_shift = dplyr::mutate(bathy_df, x = (x/1000) - 100, y = y/1000)
-
-  ggplot() +
-    geom_raster(data = r_diff_df, aes(x, y, fill = diff_est)) +
-    scale_fill_gradient2("Log Ratio of Density", low = "darkblue", high = "darkred", na.value = "white") +
+    scale_fill_gradient2("Log Ratio of Density", low = "blue", high = "red", mid = "grey92", na.value = "white") +
     annotation_map(shore, color = "black", fill = "cornsilk", size = 0.1) +
     ggthemes::theme_map() +
     theme(
       axis.text = element_text(),
       axis.ticks = element_line(),
-      axis.title = element_text()) +
-    geom_path(data = contour200_df, aes(x = long, y = lat, group = group), color = "darkcyan", size = 0.5) +
-    new_scale_fill() +
-    geom_tile(data = bathy_df_shift, aes(x, y, fill = bathy_clipped)) +
-    scale_fill_viridis_c(name = "Depth (m)") +
-    coord_cartesian(xlim = c(200, 715), ylim= c(3870, 5305)) +
+      axis.title = element_text(size = 15),
+      panel.border = element_rect(colour = "black", fill = NA, size = 2),
+      legend.position = c(0.01, 0.01)) +
+    geom_path(data = contour200_df, aes(x = long, y = lat, group = group), color = "darkcyan", size = 0.4) +
+    coord_cartesian(xlim = c(290, 715), ylim= c(3890, 5305)) +
     xlab("Eastings (km)") +
     ylab("Northings (km)")
 
-
-  # #Too difficult to see if overlayed with transparency
-  # ggplot() +
-  #   geom_tile(data = bathy_df_shift, aes(x, y, fill = bathy_clipped)) +
-  #   scale_fill_viridis_c(name = "Depth (m)") +
-  #   new_scale_fill() +
-  #   geom_raster(data = r_diff_df, aes(x, y, fill = diff_est, alpha = 0.95)) +
-  #    scale_fill_gradient2("Log Ratio of Density", low = "black", high = "black", na.value = "white") +
-  #   annotation_map(shore, color = "black", fill = "cornsilk", size = 0.1) +
-  #   ggthemes::theme_map() +
-  #   theme(
-  #     axis.text = element_text(),
-  #     axis.ticks = element_line(),
-  #     axis.title = element_text()) +
-  #   geom_path(data = contour200_df, aes(x = long, y = lat, group = group), color = "darkcyan", size = 0.5) +
-  #   coord_cartesian(xlim = c(285, 1005), ylim= c(3550, 5290)) +
-  #   xlab("Eastings (km)") +
-  #   ylab("Northings (km)")
-
-
-
+ggsave("difference_density_estimate_map.pdf", width = 4.5, height = 8.35, units = "in")
 
 # Scatterplots of differences in predicted density and depth --------------
 
