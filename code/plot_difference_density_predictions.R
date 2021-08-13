@@ -3,14 +3,15 @@
 library(ggplot2)
 library(viridis)
 library(raster)
+options("rgdal_show_exportToProj4_warnings"="none")
 library(rgdal)
 library(dplyr)
 library(scales)
 library(ggnewscale) # required to plot bathymetry and predicted density in same panel with diff scales
 
 # get coastlines and transform to projection and scale of data
-shore <- rnaturalearth::ne_countries(continent = "north america", scale = "medium", returnclass = "sp")
-shore <- sp::spTransform(shore, CRS = "+proj=utm +zone=10 ellps=WGS84")
+shore_gcs <- rnaturalearth::ne_countries(continent = "north america", scale = "medium", returnclass = "sp")
+shore <- sp::spTransform(shore_gcs, CRS = CRS(SRS_string='EPSG:32610'))
 shore <- fortify(shore)
 shore$long <- shore$long/1000
 shore$lat <- shore$lat/1000
@@ -18,7 +19,7 @@ shore$lat <- shore$lat/1000
 # get 200m contour
 contour200 <- rgdal::readOGR("data/shelf_break_contour_shapefile/ne_10m_bathymetry_K_200.shp")
 contour200_crop <- raster::crop(contour200, extent(-150, -100, 20, 70))
-contour200_crop <- sp::spTransform(contour200_crop, CRS = "+proj=utm +zone=10 ellps=WGS84")
+contour200_crop <- sp::spTransform(contour200_crop, CRS = CRS(SRS_string='EPSG:32610'))
 contour200_df <- fortify(contour200_crop)
 contour200_df$long <- contour200_df$long/1000
 contour200_df$lat <- contour200_df$lat/1000
@@ -41,8 +42,8 @@ p_4_ex = p_4 %>%
   select(X, Y, est, exp_est, depth)
 
 # rasters of predicted densities and depth
-r_1 = rasterFromXYZ(p_1_ex, crs = "+proj=utm +zone=10 ellps=WGS84")
-r_4 = rasterFromXYZ(p_4_ex, crs = "+proj=utm +zone=10 ellps=WGS84")
+r_1 = rasterFromXYZ(p_1_ex, crs = CRS(SRS_string='EPSG:32610'))
+r_4 = rasterFromXYZ(p_4_ex, crs = CRS(SRS_string='EPSG:32610'))
 
 # disaggregate coarse resolution to fine resolution, with no method specified cells it just takes the value of the larger original cells
 r_4 = disaggregate(r_4, fact = 4)
@@ -56,17 +57,10 @@ r_diff2 = overlay(r_1[["depth"]], r_4[["depth"]], fun = function(x,y){(x-y)}) # 
 names(r_diff) = "diff_est"
 names(r_diff2) = "diff_depth" # rename column
 # stack differenced density with other layers
-#r_all = stack(r_diff, r_1)
-#r_all2 = stack(r_diff2, r_1) # stack
 r_all = stack(r_diff, r_diff2, r_1)
 
-# quick view
-#image(r_diff)
-
-# other plotting options include levelplot or....
+# other plotting options include levelplot or can use the following....
 r_diff_df = as.data.frame(rasterToPoints(r_all))
-#r_diff_df2 = as.data.frame(rasterToPoints(r_all2)) # make into df
-#r_diff_df[, "diff_depth"] = r_diff_df2[,3] # add diff_depth column to main df
 
   ggplot() +
     geom_raster(data = r_diff_df, aes(x, y, fill = diff_est)) +
