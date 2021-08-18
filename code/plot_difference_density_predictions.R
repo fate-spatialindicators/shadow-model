@@ -61,7 +61,7 @@ r_all = stack(r_diff, r_diff2, r_1)
 r_diff_df = as.data.frame(rasterToPoints(r_all))
 
   ggplot() +
-    geom_raster(data = r_diff_df, aes(x, y, fill = diff_est)) +
+    geom_tile(data = r_diff_df, aes(x, y, fill = diff_est)) +
     scale_fill_gradient2("Log Ratio of Density", low = "blue", high = "red", mid = "grey92", na.value = "white") +
     annotation_map(shore, color = "black", fill = "cornsilk", size = 0.1) +
     ggthemes::theme_map() +
@@ -76,7 +76,9 @@ r_diff_df = as.data.frame(rasterToPoints(r_all))
     xlab("Eastings (km)") +
     ylab("Northings (km)")
 
-ggsave("difference_density_estimate_map.pdf", width = 4.5, height = 8.35, units = "in")
+ggsave("plots/difference_density_estimate_map.pdf", width = 4.5, height = 8.35, units = "in")
+
+
 
 # Scatterplots of differences in predicted density and depth --------------
 
