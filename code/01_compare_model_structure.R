@@ -29,7 +29,7 @@ model_1 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      spatial_only = TRUE,
                      family = tweedie(link = "log"))
-saveRDS(model_1, "fit_spatial_depth.rds")
+saveRDS(model_1, "results/fit_spatial_depth.rds")
 
 # IID
 model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_depth_scaled2,
@@ -42,7 +42,7 @@ model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_d
                      fields = "IID",
                      spatial_only = FALSE,
                      family = tweedie(link = "log"))
-saveRDS(model_2, "fit_IID_depth.rds")
+saveRDS(model_2, "results/fit_IID_depth.rds")
 
 # AR1
 model_3 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_depth_scaled2,
@@ -55,7 +55,7 @@ model_3 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_d
                      fields = "AR1",
                      spatial_only = FALSE,
                      family = tweedie(link = "log"))
-saveRDS(model_3, "fit_AR1_depth.rds")
+saveRDS(model_3, "results/fit_AR1_depth.rds")
 
 # spatial only - depth
 model_4 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year),
@@ -66,7 +66,7 @@ model_4 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      spatial_only = TRUE,
                      family = tweedie(link = "log"))
-saveRDS(model_4, "fit_spatial_nodepth.rds")
+saveRDS(model_4, "results/fit_spatial_nodepth.rds")
 
 # fit best fit model structure (spatial only + depth) to full dataset
 model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
@@ -75,4 +75,4 @@ model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + lo
                        priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                        spatial_only = TRUE,
                        family = tweedie(link = "log"))
-saveRDS(model_1_full, "fit_spatial_depth_full.rds")
+saveRDS(model_1_full, "results/fit_spatial_depth_full.rds")
