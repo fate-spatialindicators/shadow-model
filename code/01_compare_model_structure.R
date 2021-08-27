@@ -32,7 +32,7 @@ model_1 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_
 saveRDS(model_1, "results/fit_spatial_depth.rds")
 
 # IID
-model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_depth_scaled2,
+model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
                      spde = spde,
                      k_folds = max(haul_new$fold),
                      fold_ids = haul_new$fold,
@@ -45,7 +45,7 @@ model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_d
 saveRDS(model_2, "results/fit_IID_depth.rds")
 
 # AR1
-model_3 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year)+ log_depth_scaled + log_depth_scaled2,
+model_3 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
                      spde = spde,
                      k_folds = max(haul_new$fold),
                      fold_ids = haul_new$fold,
