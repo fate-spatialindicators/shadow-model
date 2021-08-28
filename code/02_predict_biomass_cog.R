@@ -30,7 +30,7 @@ m = readRDS("results/fit_spatial_depth_full.rds")
 # make timeseries plots of COG, biomass index with 95% CI from model estimates
 p = predict(m, newdata = Predict_data_years, return_tmb_object = TRUE)
 rm(Predict_data_years)
-saveRDS(p, "results/predictions_1x")
+saveRDS(p, "results/predictions_1x.rds")
 
 # compute indices (takes a lot of memory for 1x resolution predictions)
 gc()
