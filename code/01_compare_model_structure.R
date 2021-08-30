@@ -16,7 +16,7 @@ spde = make_mesh(
   haul_new,
   xy_cols = c("X","Y"),
   type = "cutoff",
-  cutoff=15,
+  cutoff = 15,
   seed = 2021
 )
 
@@ -72,6 +72,7 @@ saveRDS(model_4, "results/fit_spatial_nodepth.rds")
 model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
                        spde = spde,
                        data = haul_new,
+                       time = "year",
                        priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                        spatial_only = TRUE,
                        family = tweedie(link = "log"))
