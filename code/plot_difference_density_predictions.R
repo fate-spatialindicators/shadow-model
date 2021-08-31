@@ -24,18 +24,16 @@ contour200_df$long <- contour200_df$long/1000
 contour200_df$lat <- contour200_df$lat/1000
 
 # get population density predictions
-load("data/plotdata_all_1x.Rdata")
-p_1 = p
-load("data/plotdata_all_4x.Rdata")
-p_4 = p
+p_1 = readRDS("results/predictions_1x.rds")
+p_4 = readRDS("results/predictions_4x.rds")
 
 # filter to specific year for example
 year_ex = 2018
-p_1_ex = p_1 %>%
+p_1_ex = p_1$data %>%
   mutate(exp_est = exp(est)) %>%
   filter(year == year_ex) %>%
   select(X, Y, est, exp_est, depth) # density estimates ("est") already in log space. select "exp_est" for exponentiated density estimates
-p_4_ex = p_4 %>%
+p_4_ex = p_4$data %>%
   mutate(exp_est = exp(est)) %>%
   filter(year == year_ex) %>%
   select(X, Y, est, exp_est, depth)
