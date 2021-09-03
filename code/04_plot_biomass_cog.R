@@ -1,52 +1,46 @@
 ## Make plots of biomass and center of gravity (COG) ##
 
 library(ggplot2)
+library(dplyr)
 library(viridis)
 
-# get population density predictions
-p_1 = readRDS("results/predictions_1x.rds")
-p_4 = readRDS("results/predictions_4x.rds")
+# get population density predictions, COGs, and biomass estimates
+p1 = readRDS("results/predictions_1x.rds")
+p4 = readRDS("results/predictions_4x.rds")
+cog1 <- readRDS("~/best-practices/results/COG_1x_bias_corrected.rds")
+cog4 <- readRDS("~/best-practices/results/COG_4x_bias_corrected.rds")
+b1 <- readRDS("~/best-practices/results/biomass_1x_bias_corrected.rds")
+b4 <- readRDS("~/best-practices/results/biomass_4x_bias_corrected.rds")
 
-# Fine Resolution/1x:
-load("C:/Users/cjcco/Box/Best Practices paper/plotdata_all_1x.Rdata")
+# set up error bars for plotting in two dimensions, where COG is not dynamic in spatial-only model
+cog1 <- cog1 %>%
+  distinct(coord, .keep_all = TRUE) %>%
+  select(est, lwr, upr, coord) %>%
+  mutate(res = "fine")
+cog4 <- cog4 %>%
+  distinct(coord, .keep_all = TRUE) %>%
+  select(est, lwr, upr, coord) %>%
+  mutate(res = "coarse")
+cogs <- bind_rows(cog1, cog4)
 
-# Revised plots [only every 3 years for easier plotting/viewing]
-cogs_for_plotting = cogs_wide[c(1,4,7,10,13,16),]
+cogs_wide_est <- reshape2::dcast(cogs, res ~ coord, value.var = "est")
+cogs_wide_lwr <- reshape2::dcast(cogs, res ~ coord, value.var = "lwr") %>%
+  mutate(X_lwr = X, Y_lwr = Y)
+cogs_wide_upr <- reshape2::dcast(cogs, res ~ coord, value.var = "upr") %>%
+  mutate(X_upr = X, Y_upr = Y)
+cogs_wide <- cogs_wide_est %>%
+  left_join(select(cogs_wide_lwr, res, X_lwr, Y_lwr)) %>%
+  left_join(select(cogs_wide_upr, res, X_upr, Y_upr)) %>%
+  mutate(diameter_x = X_upr - X_lwr, diameter_y = Y_upr - Y_lwr)
 
-p1 = ggplot(cogs_for_plotting, aes(X, Y, color = factor(year))) +
-  geom_path(data = cogs_for_plotting, aes(x= X,y= Y, group=1, colour=factor(year)), size=1.0,alpha = 0.7) +
-  geom_point(size=3) +
-  scale_y_continuous(limits = c(4390, 5000), breaks=(seq(4400, 5000, 100))) +
-  scale_x_continuous(limits = c(375, 500), breaks=(seq(375, 500, 25))) +
+# scatter plot of COG at each resolution, with 2D error bars
+ggplot(cogs_wide, aes(X, Y, color = factor(res))) +
+  geom_point(size=4) +
   geom_segment(aes(x = X_lwr, xend = X_upr, y = Y, yend = Y), lwd = 1) +
   geom_segment(aes(x = X, xend = X, y = Y_lwr, yend = Y_upr), lwd = 1) +
-  scale_color_viridis(discrete = TRUE,begin = 0, end = 0.8) +
+  scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8) +
   xlab("COG Eastings (km)") +
   ylab("COG Northings (km)") +
-  ggtitle("Fine") +
-  geom_text(aes(label = year), vjust = -1, hjust = -0.2) +
+  labs(color = "resolution") +
   theme_classic()
-#ggsave("C:/Users/cjcco/Box/Best Practices paper/new and revised figures/COG_crosses_1x.pdf", width = 19, height = 8)
-
-
-# Coarse Resolution/4x:
-load("C:/Users/cjcco/Box/Best Practices paper/plotdata_all_4x.Rdata")
-
-cogs_for_plotting = cogs_wide[c(1,4,7,10,13,16),]
-
-p2 = ggplot(cogs_for_plotting, aes(X, Y, color = factor(year))) +
-  geom_path(data = cogs_for_plotting, aes(x= X,y= Y, group=1, colour=factor(year)), size=1.0,alpha = 0.7) +
-  geom_point(size=3) +
-  scale_y_continuous(limits = c(4390, 5000), breaks=(seq(4400, 5000, 100))) +
-  scale_x_continuous(limits = c(375, 500), breaks=(seq(375, 500, 25))) +
-  geom_segment(aes(x = X_lwr, xend = X_upr, y = Y, yend = Y), lwd = 1) +
-  geom_segment(aes(x = X, xend = X, y = Y_lwr, yend = Y_upr), lwd = 1) +
-  scale_color_viridis(discrete = TRUE,begin = 0, end = 0.8) +
-  xlab("COG Eastings (km)") +
-  ylab("COG Northings (km)") +
-  ggtitle("Coarse (4x)") +
-  geom_text(aes(label = year), vjust = -1, hjust = -0.2) +
-  theme_classic()
-#ggsave("C:/Users/cjcco/Box/Best Practices paper/new and revised figures/COG_crosses_4x.pdf", width = 19, height = 8)
-
-grid.arrange(p1, p2, nrow = 1)
+ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "in")
