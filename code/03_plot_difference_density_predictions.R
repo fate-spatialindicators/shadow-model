@@ -1,4 +1,4 @@
-## Make plots of difference in spatial predictions for sdmTMB West Coast ##
+## Make plots of difference in spatial predictions ##
 
 library(ggplot2)
 library(viridis)
