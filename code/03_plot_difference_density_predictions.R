@@ -78,11 +78,20 @@ ggsave("plots/difference_density_estimate_map.pdf", width = 4.5, height = 8.35, 
 
 
 # make scatter plot of log ratio in predicted density and depth with smoother --------------
-ggplot(r_diff_df, aes(x=abs(diff_depth), y=abs(diff_est))) +
-  geom_point(col = alpha("darkblue", 0.1), size=2) +
-  stat_smooth(method = "loess", formula = y ~ x, size = 1.5, se = FALSE, colour = "black") +
+
+# bin depths for color grouping in ggplot
+df = r_diff_df %>%
+  mutate(depth_bins = cut(abs(r_diff_df$depth),
+                          breaks = c(0, 150, 250, c(350, 1700))))
+
+ggplot(df, aes(x=abs(diff_depth), y=abs(diff_est))) +
+  geom_point(aes(color = (depth_bins)), alpha = 0.5, pch = 16) +
+  stat_smooth(method = "loess", formula = y ~ x, size = 1.5, span = 0.5, se = FALSE, colour = "black") +
+  scale_y_continuous(breaks = seq(0, 10, by = 2)) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 100)) +
+  scale_color_viridis(discrete = TRUE, direction = -1) +
   xlab("Difference in Depth (m)") +
   ylab("Log-Ratio of Population Density Predictions") +
-  scale_y_continuous(breaks = seq(0, 10, by = 2))
+  theme_classic()
 
 ggsave("plots/difference_density_estimate_depth_biplot.pdf", width = 4.5, height = 4, units = "in")
