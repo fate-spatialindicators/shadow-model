@@ -86,6 +86,17 @@ model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + lo
                        family = tweedie(link = "log"))
 saveRDS(model_1_full, "results/fit_spatial_depth_full.rds")
 
+# fit second best model to full dataset for comparison of biomass trends
+model_2_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
+                     spde = spde,
+                     data = haul_new,
+                     time = "year",
+                     priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
+                     fields = "IID",
+                     spatial_only = FALSE,
+                     family = tweedie(link = "log"))
+saveRDS(model_2_full, "results/fit_IID_depth_full.rds")
+
 
 ################################################################################
 
