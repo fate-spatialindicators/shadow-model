@@ -4,15 +4,11 @@ library(ggplot2)
 library(dplyr)
 library(viridis)
 
-# get population density predictions, COGs, and biomass estimates
-p1 = readRDS("results/predictions_1x.rds")
-p4 = readRDS("results/predictions_4x.rds")
-cog1 <- readRDS("~/best-practices/results/COG_1x_bias_corrected.rds")
-cog4 <- readRDS("~/best-practices/results/COG_4x_bias_corrected.rds")
-b1 <- readRDS("~/best-practices/results/biomass_1x_bias_corrected.rds")
-b4 <- readRDS("~/best-practices/results/biomass_4x_bias_corrected.rds")
+# plot COGs to compare prediction resolutions ----
 
-# plot COGs ----
+# load estimated center of gravity output from 02_predict_biomass_cog.R
+cog1 <- readRDS("results/COG_1x_bias_corrected.rds")
+cog4 <- readRDS("results/COG_4x_bias_corrected.rds")
 
 # set up error bars for plotting in two dimensions, where COG is not dynamic in spatial-only model
 cog1 <- cog1 %>%
@@ -48,7 +44,11 @@ ggplot(cogs_wide, aes(X, Y, color = factor(res))) +
 ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "in")
 
 
-# plot biomass over time ----
+# plot biomass over time to compare prediction resolutions ----
+
+# load estimated biomass output from 02_predict_biomass_cog.R
+b1 <- readRDS("results/biomass_1x_bias_corrected.rds")
+b4 <- readRDS("results/biomass_4x_bias_corrected.rds")
 
 # make estimates relative to max est
 b1$est_rel = b1$est/max(b1$est)
@@ -93,5 +93,6 @@ b4_cvs = data.frame("year" = 2003:2018)
 b4_cvs[, "CV"] = b4$se/b4$log_est
 mean(b4_cvs$CV)
 
+save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs.RData")
 
 
