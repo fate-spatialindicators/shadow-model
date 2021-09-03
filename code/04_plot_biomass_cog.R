@@ -47,8 +47,8 @@ ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "
 # plot biomass over time to compare prediction resolutions ----
 
 # load estimated biomass output from 02_predict_biomass_cog.R
-b1 <- readRDS("results/biomass_1x_bias_corrected.rds")
-b4 <- readRDS("results/biomass_4x_bias_corrected.rds")
+b1 <- readRDS("results/biomass_1x_IID.rds")
+b4 <- readRDS("results/biomass_4x_IID.rds")
 
 # make estimates relative to max est
 b1$est_rel = b1$est/max(b1$est)
@@ -73,7 +73,7 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
   ylab("Relative Biomass Estimate") +
   labs(color = "resolution") +
   theme_classic()
-ggsave("plots/cog_resolution_comparison.pdf", width = 6.5, height = 4, units = "in")
+ggsave("plots/cog_resolution_comparison_IID.pdf", width = 6.5, height = 4, units = "in")
 
 # Coefficient of Variation (CV) across years
 b1_mean = mean(b1$est)
@@ -93,6 +93,6 @@ b4_cvs = data.frame("year" = 2003:2018)
 b4_cvs[, "CV"] = b4$se/b4$log_est
 mean(b4_cvs$CV)
 
-save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs.RData")
+save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs_IID.RData")
 
 

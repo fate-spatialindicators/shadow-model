@@ -21,8 +21,8 @@ m = readRDS("results/fit_spatial_depth_full.rds")
 p = predict(m, newdata = wc_grid_predict, return_tmb_object = TRUE)
 saveRDS(p, "results/predictions_1x.rds")
 
-# compute indices (takes a lot of memory for 1x resolution predictions)
-biomass_estimates = get_index(p, bias_correct = TRUE) # bias correction on
+# compute indices
+biomass_estimates = get_index(p, bias_correct = TRUE)
 saveRDS(biomass_estimates, "results/biomass_1x_bias_corrected.rds")
 rm(biomass_estimates)
 gc()
@@ -32,7 +32,7 @@ saveRDS(COG, "results/COG_1x_bias_corrected.rds")
 rm(COG, p)
 gc()
 
-################################################################################
+#---------------------------------------------------------------------------------
 
 # repeat above computations at 4x the spatial resolution of prediction grid
 
@@ -50,8 +50,8 @@ rm(wc_grid_4x)
 p_4x = predict(m, newdata = wc_grid_4x_predict, return_tmb_object = TRUE)
 saveRDS(p_4x, "results/predictions_4x.rds")
 
-# compute indices (takes a lot of memory for 1x resolution predictions)
-biomass_estimates_4x = get_index(p_4x, bias_correct = TRUE) # bias correction on
+# compute indices
+biomass_estimates_4x = get_index(p_4x, bias_correct = TRUE)
 saveRDS(biomass_estimates_4x, "results/biomass_4x_bias_corrected.rds")
 rm(biomass_estimates_4x)
 gc()
@@ -61,7 +61,42 @@ saveRDS(COG_4x, "results/COG_4x_bias_corrected.rds")
 rm(COG_4x, p_4x)
 gc()
 
-################################################################################
+#---------------------------------------------------------------------------------
+
+# compute predictions and indices for alternative model with spatiotemporal fields
+# here without bias correction to avoid memory allocation limits
+
+m_IID = readRDS("results/fit_IID_depth_full.rds")
+
+p_IID = predict(m_IID, newdata = wc_grid_predict, return_tmb_object = TRUE)
+saveRDS(p_IID, "results/predictions_1x_IID.rds")
+
+biomass_estimates_IID = get_index(p_IID)
+saveRDS(biomass_estimates_IID, "results/biomass_1x_IID.rds")
+rm(biomass_estimates_IID)
+gc()
+
+COG_IID = get_cog(p_IID)
+saveRDS(COG_IID, "results/COG_1x_IID.rds")
+rm(COG_IID, p_IID)
+gc()
+
+
+# alternative model predicted to coarse (4x) resolution prediction grid
+p_IID_4x = predict(m_IID, newdata = wc_grid_4x_predict, return_tmb_object = TRUE)
+saveRDS(p_IID_4x, "results/predictions_4x_IID.rds")
+
+biomass_estimates_IID_4x = get_index(p_IID_4x)
+saveRDS(biomass_estimates_IID_4x, "results/biomass_4x_IID.rds")
+rm(biomass_estimates_IID_4x)
+gc()
+
+COG_IID_4x = get_cog(p_IID_4x)
+saveRDS(COG_IID_4x, "results/COG_4x_IID.rds")
+rm(COG_IID_4x, m_IID, p_IID_4x)
+gc()
+
+#---------------------------------------------------------------------------------
 
 # compute predictions and indices for alternative models with latitude filtering
 
@@ -70,7 +105,7 @@ m_95 = readRDS("results/fit_spatial_depth_full_95quantile.rds")
 p_95 = predict(m_95, newdata = wc_grid_predict, return_tmb_object = TRUE)
 saveRDS(p_95, "results/predictions_1x_95quantile.rds")
 
-biomass_estimates_95 = get_index(p_95, bias_correct = TRUE) # bias correction on
+biomass_estimates_95 = get_index(p_95, bias_correct = TRUE)
 saveRDS(biomass_estimates_95, "results/biomass_1x_95quantile_bias_corrected.rds")
 rm(biomass_estimates_95)
 gc()
@@ -86,7 +121,7 @@ m_90 = readRDS("results/fit_spatial_depth_full_90quantile.rds")
 p_90 = predict(m_90, newdata = wc_grid_predict, return_tmb_object = TRUE)
 saveRDS(p_90, "results/predictions_1x_90quantile.rds")
 
-biomass_estimates_90 = get_index(p_90, bias_correct = TRUE) # bias correction on
+biomass_estimates_90 = get_index(p_90, bias_correct = TRUE)
 saveRDS(biomass_estimates_90, "results/biomass_1x_90quantile_bias_corrected.rds")
 rm(biomass_estimates_90)
 gc()
@@ -102,7 +137,7 @@ m_80 = readRDS("results/fit_spatial_depth_full_80quantile.rds")
 p_80 = predict(m_80, newdata = wc_grid_predict, return_tmb_object = TRUE)
 saveRDS(p_80, "results/predictions_1x_80quantile.rds")
 
-biomass_estimates_80 = get_index(p_80, bias_correct = TRUE) # bias correction on
+biomass_estimates_80 = get_index(p_80, bias_correct = TRUE)
 saveRDS(biomass_estimates_80, "results/biomass_1x_80quantile_bias_corrected.rds")
 rm(biomass_estimates_80)
 gc()
