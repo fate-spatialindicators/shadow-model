@@ -81,17 +81,17 @@ ggsave("plots/difference_density_estimate_map.pdf", width = 4.5, height = 8.35, 
 
 # bin depths for color grouping in ggplot
 df = r_diff_df %>%
-  mutate(depth_bins = cut(abs(r_diff_df$depth),
-                          breaks = c(0, 150, 250, c(350, 1700))))
+  mutate(depth_bins = cut(abs(depth), breaks = c(0, 150, 250, c(350, 1700))))
 
 ggplot(df, aes(x=abs(diff_depth), y=abs(diff_est))) +
-  geom_point(aes(color = (depth_bins)), alpha = 0.5, pch = 16) +
-  stat_smooth(method = "loess", formula = y ~ x, size = 1.5, span = 0.5, se = FALSE, colour = "black") +
-  scale_y_continuous(breaks = seq(0, 10, by = 2)) +
-  scale_x_continuous(breaks = seq(0, 1000, by = 100)) +
-  scale_color_viridis(discrete = TRUE, direction = -1) +
+  geom_point(aes(fill = (depth_bins)), alpha = 0.6, pch = 21, size = 0.6) +
+  stat_smooth(method = "loess", formula = y ~ x, size = 1, span = 0.5, se = FALSE, colour = "red") +
+  scale_y_continuous(breaks = seq(0, 10, by = 2), expand = c(0.005, 0)) +
+  scale_x_continuous(breaks = seq(0, 1000, by = 100), expand = c(0.005, 0)) +
+  scale_fill_viridis(discrete = TRUE, direction = -1) +
   xlab("Difference in Depth (m)") +
   ylab("Log-Ratio of Population Density Predictions") +
   theme_classic()
 
-ggsave("plots/difference_density_estimate_depth_biplot.pdf", width = 4.5, height = 4, units = "in")
+ggsave("plots/difference_density_estimate_depth_biplot.pdf", width = 6, height = 4, units = "in")
+
