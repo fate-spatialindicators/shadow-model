@@ -73,7 +73,7 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
   ylab("Relative Biomass Estimate") +
   labs(color = "resolution") +
   theme_classic()
-ggsave("plots/cog_resolution_comparison_IID.pdf", width = 6.5, height = 4, units = "in")
+ggsave("plots/biomass_resolution_comparison_IID.pdf", width = 6.5, height = 4, units = "in")
 
 # Coefficient of Variation (CV) across years
 b1_mean = mean(b1$est)
