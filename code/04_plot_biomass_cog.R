@@ -63,17 +63,17 @@ b1$res <- "Fine (1x)"
 b4$res <- "Coarse (4x)"
 b = bind_rows(b1, b4)
 
-# plot time series (means are identical for this model)
+# plot time series
 ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
-  geom_point(size=3) +
-  geom_line() +
-  geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0) +
-  scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 1)) +
+  geom_point(size=2, position = position_dodge(width = 0.6)) +
+  geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0, position = position_dodge(width = 0.6)) +
+  #scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 1)) +
   scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8, breaks=c("Fine (1x)","Coarse (4x)")) +
   xlab("Year") +
   ylab("Relative Biomass Estimate") +
   labs(color = "resolution") +
   theme_classic()
+ggsave("plots/cog_resolution_comparison.pdf", width = 6.5, height = 4, units = "in")
 
 # Coefficient of Variation (CV) across years
 b1_mean = mean(b1$est)
