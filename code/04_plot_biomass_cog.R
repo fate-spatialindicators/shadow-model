@@ -33,7 +33,7 @@ cogs_wide <- cogs_wide_est %>%
 
 # scatter plot of COG at each resolution, with 2D error bars
 ggplot(cogs_wide, aes(X, Y, color = factor(res))) +
-  geom_point(size=4) +
+  geom_point(size = 4) +
   geom_segment(aes(x = X_lwr, xend = X_upr, y = Y, yend = Y), lwd = 1) +
   geom_segment(aes(x = X, xend = X, y = Y_lwr, yend = Y_upr), lwd = 1) +
   scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8) +
@@ -47,8 +47,8 @@ ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "
 # plot biomass over time to compare prediction resolutions ----
 
 # load estimated biomass output from 02_predict_biomass_cog.R
-b1 <- readRDS("results/biomass_1x_IID.rds")
-b4 <- readRDS("results/biomass_4x_IID.rds")
+b1 <- readRDS("results/biomass_1x_bias_corrected.rds")
+b4 <- readRDS("results/biomass_4x_bias_corrected.rds")
 
 # make estimates relative to max est
 b1$est_rel = b1$est/max(b1$est)
@@ -73,7 +73,7 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
   ylab("Relative Biomass Estimate") +
   labs(color = "resolution") +
   theme_classic()
-ggsave("plots/biomass_resolution_comparison_IID.pdf", width = 6.5, height = 4, units = "in")
+ggsave("plots/biomass_resolution_comparison.pdf", width = 6.5, height = 4, units = "in")
 
 # Coefficient of Variation (CV) across years
 b1_mean = mean(b1$est)
@@ -93,6 +93,6 @@ b4_cvs = data.frame("year" = 2003:2018)
 b4_cvs[, "CV"] = b4$se/b4$log_est
 mean(b4_cvs$CV)
 
-save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs_IID.RData")
+save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs.RData")
 
 
