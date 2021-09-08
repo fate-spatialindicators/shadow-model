@@ -39,7 +39,7 @@ ggplot(cogs_wide, aes(X, Y, color = factor(res))) +
   scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8) +
   xlab("COG Eastings (km)") +
   ylab("COG Northings (km)") +
-  labs(color = "resolution") +
+  labs(color = "Resolution") +
   theme_classic()
 ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "in")
 
@@ -50,12 +50,12 @@ ggsave("plots/cog_resolution_comparison.pdf", width = 4.5, height = 4, units = "
 cognull <- readRDS("results/COG_1x_nodepth.rds")
 
 # set up error bars for plotting in two dimensions, where COG is not dynamic in spatial-only model
-cog1$model <- "Model 1" # "space + year + depth"
+cog1$model <- "space + year + depth" # "Model 1"
 
 cognull <- cognull %>%
   distinct(coord, .keep_all = TRUE) %>%
   select(est, lwr, upr, coord) %>%
-  mutate(model = "Model 4") # "space + year"
+  mutate(model = "space + year") # "Model 4"
 cogs <- bind_rows(cog1, cognull)
 
 cogs_wide_est <- reshape2::dcast(cogs, model ~ coord, value.var = "est")
@@ -78,7 +78,7 @@ ggplot(cogs_wide, aes(X, Y, color = factor(model))) +
   ylab("COG Northings (km)") +
   labs(color = "Model") +
   theme_classic()
-ggsave("plots/cog_model_structure_comparison.pdf", width = 4.5, height = 4, units = "in")
+ggsave("plots/cog_model_structure_comparison.pdf", width = 5, height = 4, units = "in")
 
 
 # plot biomass over time to compare prediction resolutions ----
@@ -108,7 +108,7 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
   scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8, breaks=c("Fine (1x)","Coarse (4x)")) +
   xlab("Year") +
   ylab("Relative Biomass Estimate") +
-  labs(color = "resolution") +
+  labs(color = "Resolution") +
   theme_classic()
 ggsave("plots/biomass_resolution_comparison.pdf", width = 6.5, height = 4, units = "in")
 
@@ -144,8 +144,8 @@ bnull$lwr_rel = bnull$lwr/max(bnull$est)
 bnull$upr_rel = bnull$upr/max(bnull$est)
 
 # add column for model number
-b1$model <- "Model 1" # "space + year + depth"
-bnull$model <- "Model 4" # "space + year"
+b1$model <- "space + year + depth" # "Model 1"
+bnull$model <- "space + year" # "Model 4"
 bnull$res <- "Fine (1x)"
 b = bind_rows(b1, bnull)
 
@@ -159,7 +159,7 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(model)), group=model) +
   ylab("Relative Biomass Estimate") +
   labs(color = "Model") +
   theme_classic()
-ggsave("plots/biomass_model_structure_comparison.pdf", width = 6.5, height = 4, units = "in")
+ggsave("plots/biomass_model_structure_comparison.pdf", width = 7, height = 4, units = "in")
 
 # Coefficient of Variation (CV) across years
 bnull_mean = mean(bnull$est)
