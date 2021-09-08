@@ -71,12 +71,12 @@ p_null = predict(m_null, newdata = wc_grid_predict, return_tmb_object = TRUE)
 saveRDS(p_null, "results/predictions_1x_nodepth.rds")
 
 biomass_estimates_null = get_index(p_null, bias_correct = TRUE)
-saveRDS(biomass_estimates_null, "results/biomass_1x_null.rds")
+saveRDS(biomass_estimates_null, "results/biomass_1x_nodepth.rds")
 rm(biomass_estimates_null)
 gc()
 
 COG_null = get_cog(p_null, bias_correct = TRUE)
-saveRDS(COG_null, "results/COG_1x_null.rds")
+saveRDS(COG_null, "results/COG_1x_nodepth.rds")
 rm(COG_null, p_null)
 gc()
 
