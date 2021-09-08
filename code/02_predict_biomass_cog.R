@@ -63,37 +63,21 @@ gc()
 
 #---------------------------------------------------------------------------------
 
-# compute predictions and indices for alternative model with spatiotemporal fields
-# here without bias correction to avoid memory allocation limits
+# compute predictions and indices for alternative model without depth
 
-m_IID = readRDS("results/fit_IID_depth_full.rds")
+m_null = readRDS("results/fit_spatial_nodepth_full.rds")
 
-p_IID = predict(m_IID, newdata = wc_grid_predict, return_tmb_object = TRUE)
-saveRDS(p_IID, "results/predictions_1x_IID.rds")
+p_null = predict(m_null, newdata = wc_grid_predict, return_tmb_object = TRUE)
+saveRDS(p_null, "results/predictions_1x_nodepth.rds")
 
-biomass_estimates_IID = get_index(p_IID)
-saveRDS(biomass_estimates_IID, "results/biomass_1x_IID.rds")
-rm(biomass_estimates_IID)
+biomass_estimates_null = get_index(p_null, bias_correct = TRUE)
+saveRDS(biomass_estimates_null, "results/biomass_1x_null.rds")
+rm(biomass_estimates_null)
 gc()
 
-COG_IID = get_cog(p_IID)
-saveRDS(COG_IID, "results/COG_1x_IID.rds")
-rm(COG_IID, p_IID)
-gc()
-
-
-# alternative model predicted to coarse (4x) resolution prediction grid
-p_IID_4x = predict(m_IID, newdata = wc_grid_4x_predict, return_tmb_object = TRUE)
-saveRDS(p_IID_4x, "results/predictions_4x_IID.rds")
-
-biomass_estimates_IID_4x = get_index(p_IID_4x)
-saveRDS(biomass_estimates_IID_4x, "results/biomass_4x_IID.rds")
-rm(biomass_estimates_IID_4x)
-gc()
-
-COG_IID_4x = get_cog(p_IID_4x)
-saveRDS(COG_IID_4x, "results/COG_4x_IID.rds")
-rm(COG_IID_4x, m_IID, p_IID_4x)
+COG_null = get_cog(p_null, bias_correct = TRUE)
+saveRDS(COG_null, "results/COG_1x_null.rds")
+rm(COG_null, p_null)
 gc()
 
 #---------------------------------------------------------------------------------
