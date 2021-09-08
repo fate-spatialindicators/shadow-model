@@ -24,12 +24,24 @@ spde = make_mesh(
 # view number of knots
 spde$mesh$n
 
+# set up function to refit models when needed to aid convergence
+# refit_model_if_needed <- function(m) {
+#     if (max(abs(m$gradients) > 0.01)) {
+#       m <- sdmTMB::run_extra_optimization(m,
+#                                           nlminb_loops = 1L,
+#                                           newton_loops = 1L
+#         )
+#       }
+#   m
+# }
+
 # spatial only + depth
 model_1 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
                      spde = spde,
                      k_folds = max(haul_new$fold),
                      fold_ids = haul_new$fold,
                      data = haul_new,
+                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      spatial_only = TRUE,
                      family = tweedie(link = "log"))
@@ -43,6 +55,7 @@ model_2 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_
                      fold_ids = haul_new$fold,
                      data = haul_new,
                      time = "year",
+                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      fields = "IID",
                      spatial_only = FALSE,
@@ -57,6 +70,7 @@ model_3 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_
                      fold_ids = haul_new$fold,
                      data = haul_new,
                      time = "year",
+                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      fields = "AR1",
                      spatial_only = FALSE,
@@ -70,6 +84,7 @@ model_4 <- sdmTMB_cv(cpue_kg_km2 ~ 0 + as.factor(year),
                      k_folds = max(haul_new$fold),
                      fold_ids = haul_new$fold,
                      data = haul_new,
+                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                      spatial_only = TRUE,
                      family = tweedie(link = "log"))
@@ -81,21 +96,22 @@ model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + lo
                        spde = spde,
                        data = haul_new,
                        time = "year",
+                       control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                        priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                        spatial_only = TRUE,
                        family = tweedie(link = "log"))
 saveRDS(model_1_full, "results/fit_spatial_depth_full.rds")
 
-# fit second best model to full dataset for comparison of biomass trends
-model_2_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
+# fit worst fit model to full dataset for comparison of biomass trends
+model_4_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year),
                      spde = spde,
                      data = haul_new,
                      time = "year",
+                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                      priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
-                     fields = "IID",
-                     spatial_only = FALSE,
+                     spatial_only = TRUE,
                      family = tweedie(link = "log"))
-saveRDS(model_2_full, "results/fit_IID_depth_full.rds")
+saveRDS(model_4_full, "results/fit_spatial_nodepth_full.rds")
 
 
 ################################################################################
@@ -139,6 +155,7 @@ model_1_full_95quantile <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_
                        spde = spde_95,
                        data = haul_95,
                        time = "year",
+                       control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                        priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                        spatial_only = TRUE,
                        family = tweedie(link = "log"))
@@ -148,6 +165,7 @@ model_1_full_90quantile <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_
                                   spde = spde_90,
                                   data = haul_90,
                                   time = "year",
+                                  control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                                   priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                                   spatial_only = TRUE,
                                   family = tweedie(link = "log"))
@@ -157,6 +175,7 @@ model_1_full_80quantile <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_
                                   spde = spde_80,
                                   data = haul_80,
                                   time = "year",
+                                  control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
                                   priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
                                   spatial_only = TRUE,
                                   family = tweedie(link = "log"))
