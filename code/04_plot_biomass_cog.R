@@ -162,26 +162,6 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
   theme_classic()
 ggsave("plots/biomass_resolution_comparison.pdf", width = 6.5, height = 4, units = "in")
 
-# Coefficient of Variation (CV) across years
-b1_mean = mean(b1$est)
-b1_sd = sd(b1$est)
-b1_cv = b1_sd/b1_mean
-
-b4_mean = mean(b4$est)
-b4_sd = sd(b4$est)
-b4_cv = b4_sd/b4_mean
-
-# CVs for each year (Annual CVs)
-b1_cvs = data.frame("year" = 2003:2018)
-b1_cvs[, "CV"] = b1$se/b1$log_est
-mean(b1_cvs$CV)
-
-b4_cvs = data.frame("year" = 2003:2018)
-b4_cvs[, "CV"] = b4$se/b4$log_est
-mean(b4_cvs$CV)
-
-save(b1_cv, b4_cv, b1_cvs, b4_cvs, file = "results/biomass_cvs.RData")
-
 
 # plot biomass over time to compare between best and worst model ----
 
@@ -210,18 +190,6 @@ ggplot(b, aes(x=year, y=est_rel, color=factor(model)), group=model) +
   labs(color = "Model") +
   theme_classic()
 ggsave("plots/biomass_model_structure_comparison.pdf", width = 7, height = 4, units = "in")
-
-# Coefficient of Variation (CV) across years
-bnull_mean = mean(bnull$est)
-bnull_sd = sd(bnull$est)
-bnull_cv = bnull_sd/bnull_mean
-
-# CVs for each year (Annual CVs)
-bnull_cvs = data.frame("year" = 2003:2018)
-bnull_cvs[, "CV"] = bnull$se/bnull$log_est
-mean(bnull_cvs$CV)
-
-save(bnull_cv, bnull_cvs, file = "results/biomass_cvs_null.RData")
 
 
 # plot biomass over time to compare data filtering/quantiles ----
@@ -257,8 +225,8 @@ b = bind_rows(b_80, b_90, b_95, b_100)
 ggplot(b, aes(x=year, y=est_rel, color=factor(quant)), group=quant) +
   geom_point(size=2, position = position_dodge(width = 0.65)) +
   geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0, position = position_dodge(width = 0.65)) +
-  scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 3)) + 
-  scale_y_continuous(breaks = seq(from = 0.4, to = 1.0, by = 0.2)) + 
+  scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 3)) +
+  scale_y_continuous(breaks = seq(from = 0.4, to = 1.0, by = 0.2)) +
   scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8, breaks=c("80% Quantile","90% Quantile","95% Quantile","100% Quantile")) +
   xlab("Year") +
   ylab("Relative Biomass Estimate") +
