@@ -93,19 +93,19 @@ cog_100 <- readRDS("results/COG_1x_bias_corrected.rds")
 cog_80 <- cog_80 %>%
   distinct(coord, .keep_all = TRUE) %>%
   select(est, lwr, upr, coord) %>%
-  mutate(quant = "cog_80")
+  mutate(quant = "80% Quantile")
 cog_90 <- cog_90 %>%
   distinct(coord, .keep_all = TRUE) %>%
   select(est, lwr, upr, coord) %>%
-  mutate(quant = "cog_90")
+  mutate(quant = "90% Quantile")
 cog_95 <- cog_95 %>%
   distinct(coord, .keep_all = TRUE) %>%
   select(est, lwr, upr, coord) %>%
-  mutate(quant = "cog_95")
+  mutate(quant = "95% Quantile")
 cog_100 <- cog_100 %>%
   distinct(coord, .keep_all = TRUE) %>%
   select(est, lwr, upr, coord) %>%
-  mutate(quant = "cog_100")
+  mutate(quant = "100% Quantile")
 cogs <- bind_rows(cog_80, cog_90, cog_95, cog_100)
 
 cogs_wide_est <- reshape2::dcast(cogs, quant ~ coord, value.var = "est")
@@ -116,10 +116,11 @@ cogs_wide_upr <- reshape2::dcast(cogs, quant ~ coord, value.var = "upr") %>%
 cogs_wide <- cogs_wide_est %>%
   left_join(select(cogs_wide_lwr, quant, X_lwr, Y_lwr)) %>%
   left_join(select(cogs_wide_upr, quant, X_upr, Y_upr)) %>%
-  mutate(diameter_x = X_upr - X_lwr, diameter_y = Y_upr - Y_lwr)
+  mutate(diameter_x = X_upr - X_lwr, diameter_y = Y_upr - Y_lwr,
+  quant = factor(quant, levels=c("80% Quantile", "90% Quantile", "95% Quantile", "100% Quantile")))
 
 # scatter plot of COG for each quantile, with 2D error bars
-ggplot(cogs_wide, aes(X, Y, color = factor(quant))) +
+ggplot(cogs_wide, aes(X, Y, color = quant)) +
   geom_point(size = 4) +
   geom_segment(aes(x = X_lwr, xend = X_upr, y = Y, yend = Y), lwd = 1) +
   geom_segment(aes(x = X, xend = X, y = Y_lwr, yend = Y_upr), lwd = 1) +
@@ -219,10 +220,11 @@ b_80$quant <- "80% Quantile"
 b_90$quant <- "90% Quantile"
 b_95$quant <- "95% Quantile"
 b_100$quant <- "100% Quantile"
-b = bind_rows(b_80, b_90, b_95, b_100)
+b <- bind_rows(b_80, b_90, b_95, b_100) %>%
+  mutate(quant_order = factor(quant, levels=c("80% Quantile", "90% Quantile", "95% Quantile", "100% Quantile")))
 
 # plot time series
-ggplot(b, aes(x=year, y=est_rel, color=factor(quant)), group=quant) +
+ggplot(b, aes(x=year, y=est_rel, color=quant_order), group=quant_order) +
   geom_point(size=2, position = position_dodge(width = 0.65)) +
   geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0, position = position_dodge(width = 0.65)) +
   scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 3)) +
