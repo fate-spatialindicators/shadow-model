@@ -149,15 +149,14 @@ b4$upr_rel = b4$upr/max(b4$est)
 # add column for grid resolution
 b1$res <- "Fine (1x)"
 b4$res <- "Coarse (4x)"
-b = bind_rows(b1, b4) %>%
-  mutate(res_order = factor(res, levels=c("Fine (1x)", "Coarse (4x)")))
+b = bind_rows(b1, b4)
 
 # plot time series
-ggplot(b, aes(x=year, y=est_rel, color=res_order), group=res_order) +
+ggplot(b, aes(x=year, y=est_rel, color=res), group=res) +
   geom_point(size=2, position = position_dodge(width = 0.6)) +
   geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0, position = position_dodge(width = 0.6)) +
   scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 3)) +
-  scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8, breaks=c("Fine (1x)","Coarse (4x)")) +
+  scale_color_viridis(discrete = TRUE, begin = 0, end = 0.8, breaks=c("Coarse (4x)","Fine (1x)")) +
   xlab("Year") +
   ylab("Relative Biomass Estimate") +
   labs(color = "Resolution") +
