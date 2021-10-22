@@ -15,7 +15,7 @@ library(ggplot2)
 
 p1 <- ggplot(rbind(model_1$data,model_2$data,model_3$data), aes(sample = resid)) +
   stat_qq_line(col="red",alpha=0.5) +
-  stat_qq(alpha=0.2, size=0.5) +
+  stat_qq(alpha=0.01, size=0.5, col="black") +
   xlab("Theoretical quantiles") +
   ylab("Sample quantiles") +
   theme_bw() +
@@ -37,7 +37,7 @@ p1 <- ggplot(rbind(model_1$data,model_2$data,model_3$data), aes(x = resid)) +
   coord_cartesian(xlim=c(-4,4))
 p2 <- ggplot(rbind(model_1$data,model_2$data,model_3$data), aes(sample = resid)) +
   stat_qq_line(col="red",alpha=0.5) +
-  stat_qq(alpha=0.2, size=0.5) +
+  stat_qq(alpha=0.02, size=0.5) +
   xlab("Theoretical quantiles") +
   ylab("Sample quantiles") +
   theme_bw() +
