@@ -32,7 +32,7 @@ cogs_wide <- cogs_wide_est %>%
   mutate(diameter_x = X_upr - X_lwr, diameter_y = Y_upr - Y_lwr)
 
 # scatter plot of COG at each resolution, with 2D error bars
-ggplot(cogs_wide, aes(X, Y, color = factor(res))) +
+ggplot(cogs_wide, aes(X, Y, color = res)) +
   geom_point(size = 4) +
   geom_segment(aes(x = X_lwr, xend = X_upr, y = Y, yend = Y), lwd = 1) +
   geom_segment(aes(x = X, xend = X, y = Y_lwr, yend = Y_upr), lwd = 1) +
@@ -149,10 +149,11 @@ b4$upr_rel = b4$upr/max(b4$est)
 # add column for grid resolution
 b1$res <- "Fine (1x)"
 b4$res <- "Coarse (4x)"
-b = bind_rows(b1, b4)
+b = bind_rows(b1, b4) %>%
+  mutate(res_order = factor(res, levels=c("Fine (1x)", "Coarse (4x)")))
 
 # plot time series
-ggplot(b, aes(x=year, y=est_rel, color=factor(res)), group=res) +
+ggplot(b, aes(x=year, y=est_rel, color=res_order), group=res_order) +
   geom_point(size=2, position = position_dodge(width = 0.6)) +
   geom_errorbar(aes(x=year,ymin=lwr_rel, ymax=upr_rel), width=0, position = position_dodge(width = 0.6)) +
   scale_x_continuous(breaks = seq(from = 2003, to = 2018, by = 3)) +
