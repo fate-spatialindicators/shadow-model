@@ -236,3 +236,22 @@ saveRDS(model_1_full_80quantile, "results/fit_spatial_depth_full_80quantile.rds"
 # mtext(side = 2, line = 2, text = "Observed", cex = 0.8)
 # mtext(side = 3, text = "MCMC-based residuals", line = 0.5, cex = 0.8)
 # dev.off()
+
+# png("plots/residuals-dharma.png", res = 300, width = 4, height = 4, units = "in")
+# par(mar = c(3, 4, 2, 1), cex = 0.8, mfrow = c(1, 1), cex.main = 0.8)
+# gap::qqunif(
+#   res_sim$scaledResiduals,
+#   pch = 19,
+#   bty = "n",
+#   logscale = FALSE,
+#   col = "#00000010",
+#   cex = 0.5,
+#   ann = FALSE,
+#   # asp = 1,
+# )
+# mtext(side = 3, text = "Simulated-based uniform residuals (DHARMa)", line = 0.5, cex = 0.8)
+# mtext(side = 1, line = 2, text = "Expected", cex = 0.8)
+# mtext(side = 2, line = 2, text = "Observed", cex = 0.8)
+# box()
+# dev.off()
+
