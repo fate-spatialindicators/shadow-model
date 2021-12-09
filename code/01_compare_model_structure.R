@@ -93,7 +93,8 @@ model_4$sum_loglik
 
 # fit best fit model structure (spatial only + depth) to full dataset
 model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
-                       spde = spde,
+                       mesh = spde,
+  silent = FALSE,
                        data = haul_new,
                        time = "year",
                        control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
@@ -180,3 +181,59 @@ model_1_full_80quantile <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_
                                   spatial_only = TRUE,
                                   family = tweedie(link = "log"))
 saveRDS(model_1_full_80quantile, "results/fit_spatial_depth_full_80quantile.rds")
+
+## residuals
+
+# randomized-quantile/PIT:
+rq_res <- residuals(model_1_full)
+rq_res <- rq_res[is.finite(rq_res)] # some Inf
+qqnorm(rq_res);qqline(rq_res)
+
+# simulation-based; DHARMa:
+sim <- simulate(model_1_full, nsim = 500L)
+pred_fixed <- model_1_full$family$linkinv(predict(model_1_full, newdata = NULL)$est_non_rf)
+res_sim <- DHARMa::createDHARMa(
+  simulatedResponse = sim,
+  observedResponse = haul_new$cpue_kg_km2,
+  fittedPredictedResponse = pred_fixed
+)
+plot(res_sim)
+
+# MCMC-based
+# warning: slow!
+stan_fit <- tmbstan::tmbstan(model_1_full$tmb_obj, iter = 100L, warmup = 99L, chains = 1L)
+saveRDS(stan_fit, "results/stan_fit.rds")
+stan_fit <- readRDS("results/stan_fit.rds")
+stan_eta <- predict(model_1_full, tmbstan_model = stan_fit)
+stan_mu <- as.numeric(model_1_full$family$linkinv(stan_eta))
+mcmc_res <- sdmTMB:::qres_tweedie(model_1_full, y = haul_new$cpue_kg_km2, mu = stan_mu)
+
+png("plots/residuals.png", res = 300, width = 8, height = 3, units = "in")
+par(mar = c(3, 4, 2, 1), cex = 0.8, mfrow = c(1, 3), cex.main = 0.8)
+qqnorm(rq_res, cex = 0.5, main = "", xlab = "", ylab = "")
+qqline(rq_res, col = "red")
+mtext(side = 3, text = "Randomized quantile residuals", line = 0.5, cex = 0.8)
+mtext(side = 1, line = 2, text = "Expected", cex = 0.8)
+mtext(side = 2, line = 2, text = "Observed", cex = 0.8)
+
+gap::qqunif(
+  res_sim$scaledResiduals,
+  pch = 19,
+  bty = "n",
+  logscale = FALSE,
+  col = "#00000010",
+  cex = 0.5,
+  ann = FALSE,
+  # asp = 1,
+)
+mtext(side = 3, text = "Simulated-based uniform residuals (DHARMa)", line = 0.5, cex = 0.8)
+mtext(side = 1, line = 2, text = "Expected", cex = 0.8)
+mtext(side = 2, line = 2, text = "Observed", cex = 0.8)
+box()
+
+qqnorm(mcmc_res, cex = 0.5, main = "", xlab = "", ylab = "")
+qqline(mcmc_res, col = "red")
+mtext(side = 1, line = 2, text = "Expected", cex = 0.8)
+mtext(side = 2, line = 2, text = "Observed", cex = 0.8)
+mtext(side = 3, text = "MCMC-based residuals", line = 0.5, cex = 0.8)
+dev.off()
