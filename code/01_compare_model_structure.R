@@ -93,24 +93,38 @@ model_4$sum_loglik
 
 # fit best fit model structure (spatial only + depth) to full dataset
 model_1_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
-                       spde = spde,
-                       data = haul_new,
-                       time = "year",
-                       control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
-                       priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
-                       spatial_only = TRUE,
-                       family = tweedie(link = "log"))
+  mesh = spde,
+  silent = FALSE,
+  data = haul_new,
+  time = "year",
+  control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
+  priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
+  spatial_only = TRUE,
+  family = tweedie(link = "log"))
 saveRDS(model_1_full, "results/fit_spatial_depth_full.rds")
+
+# fit IID spatiotemporal for comparison:
+model_2_IID <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year) + log_depth_scaled + log_depth_scaled2,
+  mesh = spde,
+  silent = FALSE,
+  data = haul_new,
+  time = "year",
+  control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
+  priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
+  spatial_only = FALSE,
+  family = tweedie(link = "log"))
+saveRDS(model_2_IID, "results/fit_IID_depth_full.rds")
 
 # fit worst fit model to full dataset for comparison of biomass trends
 model_4_full <- sdmTMB(cpue_kg_km2 ~ 0 + as.factor(year),
-                     spde = spde,
-                     data = haul_new,
-                     time = "year",
-                     control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
-                     priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
-                     spatial_only = TRUE,
-                     family = tweedie(link = "log"))
+  mesh = spde,
+  silent = FALSE,
+  data = haul_new,
+  time = "year",
+  control = sdmTMBcontrol(nlminb_loops = 2, newton_loops = 1),
+  priors = sdmTMBpriors(matern_s = pc_matern(range_gt = 75, sigma_lt = 5)),
+  spatial_only = TRUE,
+  family = tweedie(link = "log"))
 saveRDS(model_4_full, "results/fit_spatial_nodepth_full.rds")
 
 
